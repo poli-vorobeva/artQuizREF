@@ -1,0 +1,58 @@
+.start-page {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.start-page-gameMode,.guestionsBy{
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+}
+.categories{
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-around;
+}
+.start-page-gameMode div,.guestionsBy div{
+    width: 45%;
+    height: 50px;
+    background: #dd4b21;;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 2rem;
+    color: #f7eb3c;
+    border: none;
+    border-radius: 0 9px 0 9px;
+    transition: all ease 200ms;
+    cursor: pointer;
+}
+.start-page-gameMode div:hover, .guestionsBy div:hover{
+    box-shadow: 5px 1px 15px;
+}
+.categories div {
+    width: 80%;
+    border: none;
+    cursor: pointer;
+    height: 5vh;
+    margin: 3px auto;
+    border-radius: 5px;
+    transition: all ease 500ms;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.categories div:hover{
+    box-shadow: 2px 2px 5px;
+}
+
+.categories div:hover {
+
+}

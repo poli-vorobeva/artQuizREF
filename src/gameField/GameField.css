@@ -1,0 +1,62 @@
+.gameField-wrapper {
+  display: flex;
+  height: 80vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.questionItem {
+  width: 50vw;
+}
+.questionItem-title{
+  color: white;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+.questionItem-img {
+  width: 100%;
+  height: 300px;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.questionItem-variant-work {
+  position: relative;
+  width: 48%;
+  min-width: 200px;
+  height: 200px;
+  margin-left: 2%;
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  transition: all ease 500ms;
+}
+.questionItem-variant-work:hover{
+  transform: scale(0.95);
+}
+.questionItem-variant-painter {
+  position: relative;
+  width: 48%;
+  min-width: 200px;
+  display: inline-block;
+  background: cadetblue;
+  margin: 2px 1%;
+  border: none;
+  border-radius: 3px;
+  line-height: 25px;
+  color: white;
+  text-align: center;
+  letter-spacing: 1px;
+  word-spacing: 3px;
+}
+.item-isCorrect-color{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transition: all ease 200ms;
+  top: 0;
+  left: 0;
+  opacity: 0.2;
+}
