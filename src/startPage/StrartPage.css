@@ -5,6 +5,13 @@
     align-items: center;
     justify-content: center;
 }
+.start-page ul{
+    display: flex;
+    position: absolute;
+    top: 0;
+    list-style: none;
+}
+
 .start-page-gameMode,.guestionsBy{
     width: 100%;
     display: flex;
@@ -55,4 +62,11 @@
 
 .categories div:hover {
 
+}
+.activeButton{
+    background: #2b3cde !important;
+}
+.onlinePlayer{
+    background-color: #f6f809;
+    border-radius: 10px;
 }

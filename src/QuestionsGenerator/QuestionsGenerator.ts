@@ -1,8 +1,5 @@
-import {IParams} from "../gameField/GameField";
-import {categoriesList, images} from "../images";
-import {IWorkItem} from "../interface";
-
-
+import {images} from "../images";
+import {IParams, IWorkItem} from "../interface";
 
 export class QuestionsGenerator {
     private painters: string[];
@@ -10,8 +7,7 @@ export class QuestionsGenerator {
     public questionsArray: IWorkItem[][];
 
     constructor(params: IParams) {
-
-        this.painters = categoriesList[+params.category].painters
+        this.painters = params.category.painters
         const works: IWorkItem[][] = []
         this.painters.forEach(p => {
             const painWorks = images.filter(w => w.author === p)
