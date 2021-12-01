@@ -1,12 +1,12 @@
 import Control from "../common/controll";
 import {categoriesList} from "../images";
 import {ICategory} from "../interface";
-import {observer} from "../common/observer";
 
 export class GameBy extends Control {
   public painterQuestions: Control<HTMLElement>;
   public worksQuestions: Control<HTMLElement>;
   private questionsBy: Control<HTMLElement>;
+
   constructor(parentNode: HTMLElement) {
     super(parentNode);
     this.questionsBy = new Control(parentNode, 'div', 'guestionsBy')
@@ -17,14 +17,17 @@ export class GameBy extends Control {
 
 export class ShowCategories extends Control {
   public category: Control<HTMLButtonElement>;
-  public chooseCategory: (cat: string) => void
+  public onChoosedCategory: (category: ICategory) => void
   private categories: Control<HTMLElement>;
-  public chooseCategoryToServer:(cat:string)=> void;
+  public onExcludedCategory:(category:string)=>void
+  private clickedCategory: string;
+  private mode: string;
 
-public onChoosedCategory:(category:ICategory)=>void
-  constructor(parentNode: HTMLElement, categories?: string[]) {
+  constructor(parentNode: HTMLElement, categories?: string[]|boolean,mode?:string) {
 
     super(parentNode);
+     this.clickedCategory=''
+    this.mode=mode
     this.categories = new Control(parentNode, 'div', 'categories')
     let categList: string[] = []
     if (!categories) {
@@ -32,22 +35,28 @@ public onChoosedCategory:(category:ICategory)=>void
         categList.push(cat.russian)
       })
     } else {
-      categList = categories
+      categList = categories as string[]
     }
     categList.forEach(cat => {
       this.category = new Control(this.categories.node, 'div', 'category', cat)
-      this.category.node.style.background = this.generateRandomColor()
-      this.category.node.onclick = (e) => {
-        console.log(cat)
-        this.chooseCategoryToServer(cat)
-        this.test(cat)
-        // this.onChoosedCategory(category)
+       this.category.node.style.background = this.generateRandomColor()
+       this.category.node.onclick = () => {
+        if(this.mode==='single'){
+          const category:ICategory=categoriesList.find(category=> category.russian===cat)
+          this.onChoosedCategory(category)
+          console.log(category)
+        }else {
+          this.onExcludedCategory(cat)
+        }
       }
     })
   }
-
-test(c:string){
-  return c
+deleteOneCategory(category:string){
+  Array.from(this.categories.node.children).forEach(el=>{
+    if(el.innerHTML==category){
+      (el as HTMLElement).style.display='none'
+    }
+  })
 }
   generateRandomColor() {
     const r = Math.floor(Math.random() * 255)
@@ -57,5 +66,8 @@ test(c:string){
     return `linear-gradient(125deg,
          rgba(${r},${g},${b},1) 0%, rgba(${r},${g},${b},0.5) 38%, 
          rgba(${255 - r},${255 - g},${255 - b},1) 100%)`
+  }
+  gameMode(mode:string){
+    this.mode=mode
   }
 }

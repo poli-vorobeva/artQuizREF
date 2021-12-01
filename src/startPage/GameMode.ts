@@ -8,32 +8,37 @@ export class GameMode extends Control {
   public onChoosedCategory: (cat: ICategory) => void;
   public onChoosedMode: (mode: string) => void;
   public onChoosedSort: (sort: string) => void;
-  public onShowOnlineUsers:(input:HTMLInputElement)=>void;
-  private gameMode: Control<HTMLElement>;
+  public onShowOnlineUsers: (input: HTMLInputElement) => void;
+  public onlineLobby: OnlineLobby;
+  public gameMode: Control<HTMLElement>;
   private singleGame: Control<HTMLElement>;
   private onlineGame: Control<HTMLElement>;
   private startPage: HTMLElement;
-  public onlineLobby: OnlineLobby;
   private gameBy: GameBy;
   private showCategories: ShowCategories;
   private byWrapper: Control<HTMLElement>;
+  private choosedMode: string;
+  private getMode: () => string;
 
-  constructor(startPage: HTMLElement) {
+  constructor(startPage: HTMLElement,getMode:()=>string) {
     super(startPage);
     this.startPage = startPage
-    this.gameMode = new Control(this.startPage, 'div', 'start-page-gameMode')
+    this.getMode=getMode
+    this.node.classList.add('gameMode')
+   // this.choosedMode=choosedMode
+    this.gameMode = new Control(this.node, 'div', 'start-page-gameMode')
     this.singleGame = new Control(this.gameMode.node, 'div', 'single-game', 'Single Game')
     this.singleGame.node.addEventListener('click', (e) => {
       this.onChoosedMode('single')
       this.gameMode.destroy()
-      this.byWrapper=new Control(this.startPage,'div')
-      this.gameBy= new GameBy(this.byWrapper.node)
-      this.gameBy.painterQuestions.node.onclick=()=>{
+      this.byWrapper = new Control(this.node, 'div','game-by')
+      this.gameBy = new GameBy(this.byWrapper.node)
+      this.gameBy.painterQuestions.node.onclick = () => {
         this.byWrapper.destroy()
         this.onChoosedSort('painter')
         this.singleDrawCategories('painter')
       }
-      this.gameBy.worksQuestions.node.onclick=()=>{
+      this.gameBy.worksQuestions.node.onclick = () => {
         this.byWrapper.destroy()
         this.onChoosedSort('works')
         this.singleDrawCategories('works')
@@ -44,30 +49,21 @@ export class GameMode extends Control {
       this.onChoosedMode('online')
       this.gameMode.destroy()
       this.onlineLobby = new OnlineLobby(this.startPage)
-      this.onlineLobby.onShowOnlineUsers=(input)=>{
+      this.onlineLobby.onShowOnlineUsers = (input) => {
         this.onShowOnlineUsers(input)
       }
       observer.addListener('startGame', () => {
         this.onlineLobby.destroy()
-        //this.gameBy()
       })
     }
   }
 
   singleDrawCategories(mode: string) {
     this.onChoosedSort(mode)
-    this.showCategories= new ShowCategories(this.startPage)
-    this.showCategories.onChoosedCategory=(category)=>{
+   console.log(this.getMode(),'&&&^&^&')
+    this.showCategories = new ShowCategories(this.startPage,false,'single')
+    this.showCategories.onChoosedCategory = (category) => {
       this.onChoosedCategory(category)
     }
-  //  this.drawPlayer(this.startPage)
   }
-  drawPlayer(parent:HTMLElement){
-    //this.wrapper= new Control(parent,'div')
-    //this.player
-  }
-
-
-
-
 }

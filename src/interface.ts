@@ -21,6 +21,17 @@ export interface IServerRequestMessage {
   content: string;
 }
 
+export interface IGameSettings {
+  number: number,
+  categories: string[]
+}
+
+export type IUsernameList = string[]
+
+export interface IStartGame{
+  users: string,
+  categories:string[]
+}
 export interface IClientUser {
   name: string,
   status: string,
@@ -32,7 +43,14 @@ export interface ICategory {
   english: string;
   painters: string[]
 }
-
+export interface IStartGameData {
+  usersInGame: string[],
+  randomNumber: number,
+  categories: string[],
+  roomId:string,
+  playerName: string,
+  activePlayer: string
+}
 export interface IParams {
   mode: string,
   by: string,

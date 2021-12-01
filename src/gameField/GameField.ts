@@ -4,21 +4,36 @@ import './GameField.css'
 import {GameController} from "./GameController";
 import {IAnswerObj, IParams, IWorkItem} from "../interface";
 import {QuestionItems} from "./QuizItems";
-
+import {IServerBothAnswer} from "../clientSocketModel";
 
 
 export class GameField extends Control {
-  public finishClick: (array:IAnswerObj[]) => void;
-  public finish: (array:IAnswerObj[]) => void;
   private gameFieldWrapper: Control<HTMLElement>;
   private questionItems: QuestionItems;
-
-  constructor(parentNode: HTMLElement, params: IParams,answerArray?:IAnswerObj[]) {
-    console.log("&&")
+  private controller: GameController;
+  public onAnswer: (answer: boolean, index: number, author: string) => void
+  public onlineDrawNextQuestion: () => void = () => {
+    this.questionItems.onlineDrawNextQuestion()
+  }
+  public finishClick:(value:boolean)=>void
+public onBothAnswer:(params:IServerBothAnswer)=>void = (params)=>{
+    this.questionItems.bothAnswer(params)
+}
+  constructor(parentNode: HTMLElement,
+              params: IParams,
+              serverQuestions: IWorkItem[][],
+              answerArray?: IAnswerObj[]) {
     super(parentNode);
-    this.gameFieldWrapper = new Control(this.node, 'div', 'gameField-wrapper')
-    console.log(params, this,answerArray)
-    this.questionItems = new QuestionItems(this.gameFieldWrapper.node, params, this,answerArray)
-    this.finish = (array) => this.finishClick(array)
+    console.log('$$$', params)
+    this.controller = new GameController()
+    //this.gameFieldWrapper = new Control(this.node, 'div', 'gameField-wrapper')
+    this.questionItems = new QuestionItems(this.node, params, this, serverQuestions)
+    this.questionItems.onAnswer = (answer, index, author) => {
+      //console.log("THisss")
+      this.onAnswer(answer, index, author)
+    }
+    this.questionItems.finishGame=(value)=>{
+      this.finishClick(value)
+    }
   }
 }

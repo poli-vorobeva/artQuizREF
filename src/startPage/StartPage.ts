@@ -4,8 +4,6 @@ import './StrartPage.css'
 import {GameMode} from "./GameMode";
 import {ICategory} from "../interface";
 import {OnlineGameSettings} from "./OnlineGameSettins";
-import {observer} from "../common/observer";
-import Signal from "../common/singal";
 
 export class StartPage extends Control {
   public wrapper: Control<HTMLElement>;
@@ -15,20 +13,28 @@ export class StartPage extends Control {
   onChoosedSort: (sort: string) => void
   onShowOnlineUsers: (input: HTMLInputElement) => void
   onStartOnlineGame: (user: string) => void
-  private gameMode: GameMode;
-  private parent: App;
-  private userUl: Control<HTMLElement>;
+  public gameMode: GameMode;
+ // private parent: App;
+  public userUl: Control<HTMLElement>;
   public serverCategories: string[];
   public serverRandom: number;
-public chooseCategoryToServer:(cat:string)=>void
-  constructor(parentNode: HTMLElement, parentApp: App,onStartGame:Signal<null>) {
+  private onlineSettings: OnlineGameSettings;
+  public onlineSettingsDestroy: () => void;
+  public onExcludedCategory: (category: string) => void
+  public onSort: (sort: string) => void
+  parent: HTMLElement;
+  public gameModeWrapper: Control<HTMLElement>;
+
+  constructor(parentNode: HTMLElement,getMode:()=>string) {
     super(parentNode);
-    this.serverRandom=null
-    this.serverCategories=[]
-    this.parent = parentApp
-    this.wrapper = new Control(this.node, 'div', 'start-page')
-    this.gameMode = new GameMode(this.wrapper.node)
-    this.userUl = new Control(this.wrapper.node, 'ul')
+    this.node.classList.add('startPage')
+    this.parent=parentNode
+    this.serverRandom = null
+    this.serverCategories = []
+    this.gameModeWrapper = new Control(this.node, 'div', 'gameModeWrapper')
+    this.gameMode = new GameMode(this.gameModeWrapper.node,getMode)
+    this.userUl = new Control(parentNode, 'ul')
+
     this.gameMode.onShowOnlineUsers = (input) => {
       this.onShowOnlineUsers(input)
       this.gameMode.onlineLobby.destroy()
@@ -38,19 +44,34 @@ public chooseCategoryToServer:(cat:string)=>void
       this.onChoosedCategory(cat)
     }
     this.gameMode.onChoosedMode = (mode) => {
+      //this.gameModeWrapper.destroy()
       this.onChoosedMode(mode)
     }
     this.gameMode.onChoosedSort = (sort) => {
-      this.onChoosedSort(sort)
+    //  this.onChoosedSort(sort)
+     // this.gameMode.destroy()
+      this.onSort(sort)
     }
-    //*********
-    onStartGame.add((params)=>{
-      this.wrapper.destroy()
-      const onlineSettings = new OnlineGameSettings(this.parent.node,this.serverCategories,this.serverRandom)
-    onlineSettings.chooseCategoryToServer=(cat)=>{
-        this.chooseCategoryToServer(cat)
+  }
+
+  onlineSettingsInit() {
+    this.gameModeWrapper.destroy()
+    this.onlineSettings = new OnlineGameSettings(
+      this.parent, this.serverCategories, this.serverRandom)
+    this.onlineSettingsDestroy = () => {
+      this.onlineSettings.destroyWrapper()
     }
-    })
+    this.onlineSettings.onExcludedCategory = (category: string) => {
+      console.log("STR")
+      this.onExcludedCategory(category)
+    }
+    this.onlineSettings.onSort = (sort: string) => {
+      this.onSort(sort)
+    }
+  }
+
+  redrawCategories(category: string) {
+    this.onlineSettings.redrawCategories(category)
   }
 
   drawOnlineUsers(users: string[]) {
@@ -59,7 +80,7 @@ public chooseCategoryToServer:(cat:string)=>void
       if (user) {
         const lis = new Control(this.userUl.node, 'li')
         const button = new Control(lis.node, 'button', '', user)
-        button.node.onclick = () =>  this.onStartOnlineGame(user)
+        button.node.onclick = () => this.onStartOnlineGame(user)
       }
     })
   }

@@ -23,22 +23,31 @@
     flex-flow: column nowrap;
     justify-content: space-around;
 }
+@keyframes hoverButton {
+    20% {background-color: red;
+    transform: scale(1.05)}
+    50% {background-color: yellow; transform: scale(1)}
+    100%{background-color: red;  transform: scale(0.95)}
+}
 .start-page-gameMode div,.guestionsBy div{
     width: 45%;
     height: 50px;
-    background: #dd4b21;;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-transform: uppercase;
-    letter-spacing: 3px;
-    font-size: 2rem;
-    color: #f7eb3c;
-    border: none;
+    letter-spacing: 1vw;
+    font-size: 3vw;
+    color: #ffffff;
+    border: 2px solid white;
+
     border-radius: 0 9px 0 9px;
     transition: all ease 200ms;
     cursor: pointer;
 }
 .start-page-gameMode div:hover, .guestionsBy div:hover{
     box-shadow: 5px 1px 15px;
+    animation: hoverButton 5s linear infinite alternate
 }
 .categories div {
     width: 80%;
@@ -65,6 +74,16 @@
 }
 .activeButton{
     background: #2b3cde !important;
+}
+.category{
+    position: relative;
+}
+.categoryBlock{
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: black;
+    opacity: 0.5;
 }
 .onlinePlayer{
     background-color: #f6f809;
