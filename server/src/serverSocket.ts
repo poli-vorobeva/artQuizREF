@@ -207,7 +207,7 @@ export class ServerSocket {
               ///
               if (this.bothPlayersResponse === 2) {
                 const questionsGenerator = new QuestionsGenerator(content)
-
+console.log('HERE',questionsGenerator)
                 const responseMessage = {
                   type: 'questionParamsResponse',
                   content: JSON.stringify(questionsGenerator.questionsArray)///////////

@@ -31,6 +31,7 @@ public finishGame:(value:boolean)=>void
     this.bothAnswer=(params:IServerBothAnswer)=>{
       this.questionItem.bothAnswer(params)
     }
+  //  console.log("!!!",serverQuestions)
     answersArray && answersArray.forEach(answer => {
       const subArray = []
       subArray.push(answer.correct)
@@ -59,6 +60,8 @@ public finishGame:(value:boolean)=>void
       },200)
       //правильный ответ запихивать перевым. потом остальные три
       if (this.currentQuestion < this.questionsGenerator.length) {
+        console.log('9990990',this.currentQuestion,this.questionsGenerator[this.currentQuestion])
+
         this.questionItem = new QuestionItem(this.questionItemWrapper.node, this.currentQuestion,
           this.questionsGenerator[this.currentQuestion], params.mode, params.by)
         this.questionItem.onAnswer = (answer, index,author) => {

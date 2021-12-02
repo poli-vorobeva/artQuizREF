@@ -88,7 +88,7 @@ export class App extends Control {
       this.startPage.onlineSettingsInit()
     })
     this.clientSocketModel.onGetServerQuestions.add((params) => {
-
+console.log("Question",params.questions)
       this.serverQuestions = params.questions
 
       this.smallCycle({
@@ -147,7 +147,8 @@ export class App extends Control {
       this.startPage.destroy()
       params ? this.smallCycleContent('single', params.prevCycleAnswersArray)
         : this.smallCycleContent('single')
-    } else if (this.choosedMode === 'online') {
+    }
+    else if (this.choosedMode === 'online') {
       const onlineGameField = new OnlineGameField(this.node, params.player, params.opponent)//ответ имя игрока и оппонента
       this.smallCycleContent('online')
     }

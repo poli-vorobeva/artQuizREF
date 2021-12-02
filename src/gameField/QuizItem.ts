@@ -34,13 +34,14 @@ export class QuestionItem extends Control {
   constructor(parentNode: HTMLElement,
               index: number, array: IWorkItem[], gameMode: string, by: string) {
     super(parentNode);
+    console.log('{{',by)
     this.gameMode = gameMode
     this.correctAnswer = array[0]
     this.variants={}
     this.correctAnswerHTMLElement = null
     this.shuffledArray = shuffle(array)
     this.controller = new QuizItemController()
-this.bothAnswer=(params:IServerBothAnswer)=>{
+    this.bothAnswer=(params:IServerBothAnswer)=>{
     //  console.log('&&&',params.name)
   //const playerName = params.name===params.name?params.opponent.name:params.player.name
 
@@ -61,6 +62,7 @@ this.bothAnswer=(params:IServerBothAnswer)=>{
 }
    // this.element = new Control(this.node, 'div', 'questionItem')
     if (by === 'work') {
+      console.log('ttt')
       this.title = new Control(this.node, 'h5', 'questionItem-title',
         `какую из этих картин написал ${this.correctAnswer.author} ?`)
       const byWorkWrapper=new Control(this.node,'div','byWorkWrapper')
@@ -83,6 +85,7 @@ this.bothAnswer=(params:IServerBothAnswer)=>{
       })
     }
     if (by === 'painter') {
+      console.log('jjkj')
       //какой художник нарисовал эту картину- выводим 4 художника
       const byPainterWrapper = new Control(this.node,'div','byPainterWrapper')
       this.title = new Control(this.node, 'h5', 'questionItem-title',
