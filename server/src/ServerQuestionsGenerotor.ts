@@ -1,10 +1,13 @@
 import {IParams, IWorkItem} from "../../src/interface";
 import {images} from "../../src/images";
-
+export interface IQuestions{
+  correct:IWorkItem
+  variants:IWorkItem[]
+}
 export class QuestionsGenerator {
   private painters: string[];
   private questionsElements: IWorkItem[];
-  public questionsArray: IWorkItem[][];
+  public questionsArray: IQuestions[];
 
   constructor(params: IParams) {
     this.painters = params.category.painters
@@ -17,9 +20,33 @@ export class QuestionsGenerator {
     works.forEach(e => {
       this.questionsElements.push(e[Math.floor(Math.random() * e.length)])
     })
-    this.questionsArray = this.getValues(this.getRandom())
+    this.questionsArray= this.createQuestionsWithVariants(this.questionsElements)
   }
+createQuestionsWithVariants(array: IWorkItem[]){
+    const resultQuestionsArray:IQuestions[]=[]
+    array.forEach((item,index)=>{
+      const element:{correct:IWorkItem,variants:IWorkItem[]}={correct:null,variants:[]}
+      element.correct=item
+      const variants:IWorkItem[]=[]
+      const randomElement=()=>{
+        const randomIndex=Math.floor(Math.random()*array.length)
+        const notRepeat = variants
+            ? variants.every(variant=>variant.author!==array[randomIndex].author)
+            :true
+        if(randomIndex!==index && notRepeat){
+          variants.push(array[randomIndex])
+        }
+      }
+        do{
+          randomElement()
+        }
+        while(variants.length<3)
 
+      element.variants=[...variants]
+      resultQuestionsArray.push(element)
+    })
+  return resultQuestionsArray
+}
   getRandom() {
     const questionsVariants: number[][] = []
     this.questionsElements.forEach((el, i) => {
@@ -44,8 +71,11 @@ export class QuestionsGenerator {
   }
 
   getValues(array: number[][]) {
+    console.log("^^^^^",array)
     const roundQuestions: IWorkItem[][] = []
     array.forEach((ar, i) => {
+    //  const element:{correct:IWorkItem,variants:IWorkItem[]}= {}
+     // element.correct=ar
       const questions: IWorkItem[] = []
       ar.forEach(b => {
         questions.push(this.questionsElements[b])

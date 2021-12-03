@@ -3,6 +3,7 @@ import {IWorkItem} from "../interface";
 import {GameController} from "./GameController";
 import {QuizItemController} from "./QuizItemController";
 import {IServerBothAnswer} from "../clientSocketModel";
+import {IQuestions} from "../app";
 
 function shuffle(array: IWorkItem[]) {
   let currentIndex = array.length, randomIndex;
@@ -30,105 +31,106 @@ export class QuestionItem extends Control {
   public bothAnswer: (params: IServerBothAnswer) => void;
   private variants:{[key:string]:HTMLElement};
   public  nextQuestion:(value:boolean)=>void;
+  private allVariants: IWorkItem[];
 
   constructor(parentNode: HTMLElement,
-              index: number, array: IWorkItem[], gameMode: string, by: string) {
+              index: number, array: IQuestions, gameMode: string, by: string) {
     super(parentNode);
-    console.log('{{',by)
+   // console.log("Y^Y^Y^&")
     this.gameMode = gameMode
-    this.correctAnswer = array[0]
-    this.variants={}
+    this.correctAnswer = array.correct
+    this.variants = {}
     this.correctAnswerHTMLElement = null
-    this.shuffledArray = shuffle(array)
+    this.allVariants = []
+    this.allVariants.push(array.correct)
+    this.allVariants.push(...array.variants)
+    this.shuffledArray = shuffle(this.allVariants)
     this.controller = new QuizItemController()
-    this.bothAnswer=(params:IServerBothAnswer)=>{
-    //  console.log('&&&',params.name)
-  //const playerName = params.name===params.name?params.opponent.name:params.player.name
+    this.bothAnswer = (params: IServerBothAnswer) => {
 
-      Object.entries(this.variants).forEach(variant=> {
-       if( params.player.answerAuthor===variant[0]){
-         variant[1].querySelector('div').classList.add('playerAnswer')
-         this.choiceStyle(variant[0],variant[1])
-       }
-       if(params.opponent.answerAuthor===variant[0]){
-         variant[1].querySelector('div').classList.add('opponentAnswer')
-     this.choiceStyle(variant[0],variant[1])
-       }
-        //player-
-       // if(params.name===)
-      })
-    //  *** иметь псевдомассив варианов. и дальше закрашиваем вариант первого и второго. И правильный.
-   // Потоом вызываем следующий вопрос
-}
-   // this.element = new Control(this.node, 'div', 'questionItem')
-    if (by === 'work') {
-      console.log('ttt')
-      this.title = new Control(this.node, 'h5', 'questionItem-title',
-        `какую из этих картин написал ${this.correctAnswer.author} ?`)
-      const byWorkWrapper=new Control(this.node,'div','byWorkWrapper')
-      this.shuffledArray.forEach((p: IWorkItem) => {
-        if (p.author === this.correctAnswer.author) {
-          this.correctAnswer = p
+      Object.entries(this.variants).forEach(variant => {
+        if (params.player.answerAuthor === variant[0]) {
+          variant[1].querySelector('div').classList.add('playerAnswer')
+           this.choiceStyle(variant[0],variant[1])
         }
-        const but = new Control(byWorkWrapper.node, 'div', 'questionItem-variant-work')
-        but.node.style.backgroundImage = `url(./public/assets/img/${p.imageNum}.jpg)`
-        this.variants[p.author]=but.node
-        const insideDiv = new Control(but.node, 'div', 'item-isCorrect-color')
-        if (this.correctAnswer.author === p.author) {
-          this.correctAnswerHTMLElement = insideDiv.node
+        if (params.opponent.answerAuthor === variant[0]) {
+          variant[1].querySelector('div').classList.add('opponentAnswer')
+            this.choiceStyle(variant[0],variant[1])
         }
-        but.node.addEventListener('click', () => {
-          this.onAnswer(this.controller.isCorrect(p, this.correctAnswer), index,p.author)
-           // insideDiv.node.classList.add('playerAnswer')
-        })
 
       })
+      console.log("BY",by)
     }
-    if (by === 'painter') {
-      console.log('jjkj')
-      //какой художник нарисовал эту картину- выводим 4 художника
-      const byPainterWrapper = new Control(this.node,'div','byPainterWrapper')
-      this.title = new Control(this.node, 'h5', 'questionItem-title',
-        `Какой художник написал эту картину ?`)
-      const imgWrapper = new Control(this.node, 'div', 'questionItem-img')
-      imgWrapper.node.style.backgroundImage = `url(./public/assets/full/${this.correctAnswer.imageNum}full.jpg)`
-
-      this.shuffledArray.forEach(p => {
-        const but = new Control(byPainterWrapper.node, 'div', 'questionItem-variant-painter', p.author)
-        const insideDiv = new Control(but.node, 'div', 'item-isCorrect-color')
-        this.variants[p.author]=but.node
-        if (this.correctAnswer.author === p.author) {
-          this.correctAnswerHTMLElement = insideDiv.node
-        }
-        but.node.addEventListener('click', () => {
-            insideDiv.node.classList.add('playerAnswer')
-          if (this.gameMode === 'single') {
-            this.onSingleAnswer(this.controller.isCorrect(p, this.correctAnswer))
-          } else {
-            this.onAnswer(this.controller.isCorrect(p, this.correctAnswer), index,p.author)
+      if (by === 'work') {
+        console.log("RTTTTRRTRR")
+        this.title = new Control(this.node, 'h5', 'questionItem-title',
+            `какую из этих картин написал ${this.correctAnswer.author} ?`)
+        const byWorkWrapper = new Control(this.node, 'div', 'byWorkWrapper')
+        this.shuffledArray.forEach((p: IWorkItem) => {
+          if (p.author === this.correctAnswer.author) {
+            this.correctAnswer = p
           }
+          const but = new Control(byWorkWrapper.node, 'div', 'questionItem-variant-work')
+          but.node.style.backgroundImage = `url(./public/assets/img/${p.imageNum}.jpg)`
+          this.variants[p.author] = but.node
+          const insideDiv = new Control(but.node, 'div', 'item-isCorrect-color')
+          if (this.correctAnswer.author === p.author) {
+            this.correctAnswerHTMLElement = insideDiv.node
+          }
+          but.node.addEventListener('click', () => {
+            this.onAnswer(this.controller.isCorrect(p, this.correctAnswer), index, p.author)
+            // insideDiv.node.classList.add('playerAnswer')
+          })
 
         })
-      })
-    }
-  }
+      }
+      if (by === 'painter') {
+        console.log("RTTTTRRTRR")
+        console.log('correct',this.correctAnswer )
+        //какой художник нарисовал эту картину- выводим 4 художника
+        const byPainterWrapper = new Control(this.node, 'div', 'byPainterWrapper')
+        this.title = new Control(this.node, 'h5', 'questionItem-title',
+            `Какой художник написал эту картину ?`)
+        const imgWrapper = new Control(this.node, 'div', 'questionItem-img')
 
+        imgWrapper.node.style.backgroundImage = `url(./public/assets/full/${this.correctAnswer.imageNum}full.jpg)`
+
+        this.shuffledArray.forEach(p => {
+          const but = new Control(byPainterWrapper.node, 'div', 'questionItem-variant-painter', p.author)
+          const insideDiv = new Control(but.node, 'div', 'item-isCorrect-color')
+          this.variants[p.author] = but.node
+          if (this.correctAnswer.author === p.author) {
+            this.correctAnswerHTMLElement = insideDiv.node
+          }
+          but.node.onclick=()=>{
+            insideDiv.node.classList.add('playerAnswer')
+            if (this.gameMode === 'single') {
+              this.onSingleAnswer(this.controller.isCorrect(p, this.correctAnswer))
+            } else {
+              this.onAnswer(this.controller.isCorrect(p, this.correctAnswer), index, p.author)
+            }
+
+          }
+        })
+      }
+
+  }
   choiceStyle(author:string, element:HTMLElement){
     element.querySelector('div').ontransitionend=()=>{
       if(author==this.correctAnswer.author){
-        setTimeout(()=>{
+     //  setTimeout(()=>{
           element.querySelector('div').classList.add('correctAnswer')
           element.ontransitionend=()=>{
             this.nextQuestion(true)
           }
-        },1000)
+    //    },1000)
       }else{
-        setTimeout(()=>{
+     //   setTimeout(()=>{
           element.querySelector('div').classList.add('mistakeAnswer')
           element.ontransitionend=()=>{
             this.nextQuestion(true)
           }
-        },1000)
+      //  },1000)
       }
     }
   }

@@ -7,7 +7,11 @@ import {ClientSocketModel} from "./clientSocketModel";
 import {categoriesList} from "./images";
 import Signal from "./common/singal";
 import {OnlineGameField} from "./gameField/OnlineGameGield";
-
+import {Header} from "./header/Header";
+export interface IQuestions{
+  correct:IWorkItem
+  variants:IWorkItem[]
+}
 export interface ISmallCycle {
   player?: string,
   opponent?: string,
@@ -29,10 +33,14 @@ export class App extends Control {
   private currentUser: string;
   private clientSocketModel: ClientSocketModel;
   private startPage: StartPage;
-  private serverQuestions: IWorkItem[][]
+  private serverQuestions: IQuestions[]
+  private header: Header;
+  private parentNode: HTMLElement;
+  private finishScreen: FinishScreen;
 
   constructor(parentNode: HTMLElement) {
     super(parentNode);
+    this.parentNode= parentNode;
     this.users = []
     this.randomNumber = 0
     this.addPlayer = ''
@@ -51,7 +59,13 @@ export class App extends Control {
 
     this.questions = null
     this.choosedCategory = null
+    this.header=new Header(this.node)
     this.gameCycle()
+    this.header.onHomeButton.add((params=>{
+      this.startPage && this.startPage.destroy()
+      this.gameField && this.gameField.destroy()
+      this.gameCycle()
+    }))
   }
 
   getChoosedMode() {
@@ -61,7 +75,6 @@ export class App extends Control {
   gameCycle() {
     this.startPage = new StartPage(this.node, this.getChoosedMode)
     this.clientSocketModel.onGetUserList.add((params) => {
-      console.log('onGetUserList')
       this.users = params
       this.startPage.drawOnlineUsers(this.users)
       this.startPage.onStartOnlineGame = (user) => {
@@ -88,7 +101,6 @@ export class App extends Control {
       this.startPage.onlineSettingsInit()
     })
     this.clientSocketModel.onGetServerQuestions.add((params) => {
-console.log("Question",params.questions)
       this.serverQuestions = params.questions
 
       this.smallCycle({
@@ -171,10 +183,11 @@ console.log("Question",params.questions)
       this.node, this.getQuestionsParams(), this.serverQuestions, array)
     this.gameField.node.classList.add('gameField')
     this.gameField.onAnswer = (answer, index, author) => {
-      this.clientSocketModel.onAnswer(answer, index, author)
+      this.clientSocketModel.answer(answer, index, author)
     }
     this.gameField.finishClick = (value) => {
       this.gameField.destroy()
+      this.finishScreen= new FinishScreen(this.node)
       this.gameCycle()
       //TODO сделать кнопку домой
       //следать кнопку- выйти из комнаты- лобби с онлайн игрокамии

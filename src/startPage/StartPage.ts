@@ -33,7 +33,7 @@ export class StartPage extends Control {
     this.serverCategories = []
     this.gameModeWrapper = new Control(this.node, 'div', 'gameModeWrapper')
     this.gameMode = new GameMode(this.gameModeWrapper.node,getMode)
-    this.userUl = new Control(parentNode, 'ul')
+    this.userUl = new Control(this.gameModeWrapper.node, 'ul')
 
     this.gameMode.onShowOnlineUsers = (input) => {
       this.onShowOnlineUsers(input)

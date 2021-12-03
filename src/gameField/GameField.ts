@@ -5,6 +5,7 @@ import {GameController} from "./GameController";
 import {IAnswerObj, IParams, IWorkItem} from "../interface";
 import {QuestionItems} from "./QuizItems";
 import {IServerBothAnswer} from "../clientSocketModel";
+import {IQuestions} from "../app";
 
 
 export class GameField extends Control {
@@ -21,10 +22,10 @@ public onBothAnswer:(params:IServerBothAnswer)=>void = (params)=>{
 }
   constructor(parentNode: HTMLElement,
               params: IParams,
-              serverQuestions: IWorkItem[][],
+              serverQuestions: IQuestions[],
               answerArray?: IAnswerObj[]) {
     super(parentNode);
-    console.log('$$$', params)
+    console.log('$$$', serverQuestions)
     this.controller = new GameController()
     //this.gameFieldWrapper = new Control(this.node, 'div', 'gameField-wrapper')
     this.questionItems = new QuestionItems(this.node, params, this, serverQuestions)

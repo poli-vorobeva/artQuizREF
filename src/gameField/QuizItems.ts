@@ -6,11 +6,12 @@ import {GameField} from "./GameField";
 import {QuestionItem} from "./QuizItem";
 import {OnlineGameController} from "./OnlineGameController";
 import {IServerBothAnswer} from "../clientSocketModel";
+import {IQuestions} from "../app";
 
 export class QuestionItems extends Control {
   private currentQuestion: number;
   private questionItem: QuestionItem;
-  private questionsGenerator: IWorkItem[][];
+  private questionsGenerator: IQuestions[];
   private controller: GameController;
   private sendNewQuestions: any[];
   private onlineController: OnlineGameController;
@@ -24,7 +25,7 @@ export class QuestionItems extends Control {
 public finishGame:(value:boolean)=>void
 
   constructor(parentNode: HTMLElement, params: IParams,
-              gameField: GameField, serverQuestions: IWorkItem[][], answersArray?: IAnswerObj[]) {
+              gameField: GameField, serverQuestions: IQuestions[], answersArray?: IAnswerObj[]) {
     super(parentNode);
     this.currentQuestion = 0
     this.sendNewQuestions = []
@@ -53,35 +54,34 @@ public finishGame:(value:boolean)=>void
     }
 
     this.createItem = () => {
-       this.questionItemWrapper= new Control(this.node,'div','itemWrapper .itemWrapper-hiddenIn')
-
-      setTimeout(()=>{
-        this.questionItemWrapper.node.classList.remove('itemWrapper-hiddenIn')
-      },200)
+       this.questionItemWrapper= new Control(this.node,'div','itemWrapper')
+// .itemWrapper-hiddenIn
+     // setTimeout(()=>{
+       // this.questionItemWrapper.node.classList.remove('itemWrapper-hiddenIn')
+     // },200)
       //правильный ответ запихивать перевым. потом остальные три
       if (this.currentQuestion < this.questionsGenerator.length) {
         console.log('9990990',this.currentQuestion,this.questionsGenerator[this.currentQuestion])
-
         this.questionItem = new QuestionItem(this.questionItemWrapper.node, this.currentQuestion,
           this.questionsGenerator[this.currentQuestion], params.mode, params.by)
         this.questionItem.onAnswer = (answer, index,author) => {
-         // console.log(answer,index)
+
           this.onAnswer(answer, index,author)
         }
         this.questionItem.nextQuestion=(value)=>{
 
             this.questionItemWrapper.node.classList.add('itemWrapper-hiddenOut')
-          setTimeout(()=>{
+         // setTimeout(()=>{
             value && this.nextQuestion()
-          },1000)
+         // },1000)
 
         }
         this.questionItem.onSingleAnswer=(answer)=>{
           this.controller.singleQuestionAnswer(answer)
           this.questionItemWrapper.node.classList.add('itemWrapper-hiddenOut')
-          setTimeout(()=>{
+    //      setTimeout(()=>{
             this.nextQuestion()
-          },1000)
+       //   },1000)
         }
 //если игра онлайн то дожидаемся ответа от сервера если нет то просто следующий вопрос
         //применяем функцию со стилями

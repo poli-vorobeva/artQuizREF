@@ -22,12 +22,15 @@ export interface IServerBothAnswer {
 }
 
 export interface IServerQuestions {
-  questions: IWorkItem[][],
+  questions: IQuestions[],
   players: {
     player: string, opponent: string
   }
 }
-
+export interface IQuestions{
+    correct:IWorkItem
+    variants:IWorkItem[]
+}
 export class ClientSocketModel {
   public onGetUserList: Signal<IUsernameList> = new Signal();
   public oneChoosedCategory: Signal<string> = new Signal();
@@ -92,7 +95,7 @@ export class ClientSocketModel {
 
       }
       if (response.type === 'questionParamsResponse') {
-        const _response: IWorkItem[][] = JSON.parse(response.content)
+        const _response:IQuestions[] = JSON.parse(response.content)
         this.onGetServerQuestions.emit({
           questions: _response,
           players: {
@@ -175,8 +178,9 @@ export class ClientSocketModel {
       activePlayer: this.activePlayer
     }
   }
-
-  onAnswer(answer: boolean, index: number, author: string) {
+  answer(answer: boolean, index: number, author: string) {
+      console.log("MODEL,Answer",answer,index,author)
+    //TODO
     if (this.questionIndex === index) {
       return
     }
