@@ -1,4 +1,6 @@
 import {connection} from "websocket";
+import {IQuestions} from "./ServerQuestionsGenerotor";
+import {IPlayerAnswer} from "../../src/interface";
 
 export interface IServerResponseMessage {
   type: string;
@@ -34,6 +36,11 @@ export interface IRoomPlayer {
     [key: string]: number
   }
 }
+export interface IAnswerObj
+{
+  name:string,
+  isCorrect:boolean,
+  author:string}
 
 export interface IRoom {
   id: string,
@@ -44,8 +51,10 @@ export interface IRoom {
   }
   category: string[],
   currentQuestionData:{
+    questionNumber:0,
     bothPlayersClick:number,
-    actions:[{firstName:string,value:number,author:string},{secondName:string,value:number,author:string}]
+    actions:IPlayerAnswer[]
+    questions:IQuestions[]
   }
 
 }

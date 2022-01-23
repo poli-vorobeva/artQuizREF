@@ -62,7 +62,6 @@ export class StartPage extends Control {
       this.onlineSettings.destroyWrapper()
     }
     this.onlineSettings.onExcludedCategory = (category: string) => {
-      console.log("STR")
       this.onExcludedCategory(category)
     }
     this.onlineSettings.onSort = (sort: string) => {

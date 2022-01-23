@@ -1,5 +1,6 @@
 import {
-  IChooseCategoryData, IParams,
+  IAnswerObj,
+  IChooseCategoryData, IParams, IPlayerAnswer, IPlayersResponse, IServerBothAnswer, IServerQuestions,
   IServerResponseMessage,
   IStartGame,
   IStartGameData,
@@ -8,32 +9,12 @@ import {
 import {App} from "./app";
 import Signal from "./common/singal";
 
-export interface IServerBothAnswer {
-  "player": {
-    "name": string,
-    "value": number,
-    "answerAuthor": string
-  },
-  "opponent": {
-    "name": string,
-    "answerAuthor": string,
-    "value": number
-  }
-}
 
-export interface IServerQuestions {
-  questions: IQuestions[],
-  players: {
-    player: string, opponent: string
-  }
-}
-export interface IQuestions{
-    correct:IWorkItem
-    variants:IWorkItem[]
-}
+
 export class ClientSocketModel {
   public onGetUserList: Signal<IUsernameList> = new Signal();
   public oneChoosedCategory: Signal<string> = new Signal();
+  public onGetServerNextQuestion: Signal<IWorkItem[]> = new Signal<IWorkItem[]>();
   public redrawCategories: Signal<string> = new Signal<string>();
   public onOnlineSettings: Signal<IStartGameData> = new Signal<IStartGameData>();
   public onStartGame: Signal<null> = new Signal<null>();
@@ -45,9 +26,9 @@ export class ClientSocketModel {
   private players: string[];
   private roomId: string
   public onGetOpenUsers: Signal<string[]> = new Signal<string[]>()
-  private questionIndex: number
   public onNextQuestion: Signal<null> = new Signal<null>()
   public onBothAnswer: Signal<IServerBothAnswer> = new Signal<IServerBothAnswer>()
+  public onPlayersFromServer: Signal<IPlayersResponse> = new Signal< IPlayersResponse>()
 
   constructor(setSettingsData: (category: string[], _number: number) => void
   ) {
@@ -63,24 +44,17 @@ export class ClientSocketModel {
       if (response.type === 'getOpenUsers') {
         const responseP = JSON.parse(response.content).filter((e: string) => e !== this.userConnectionName)
         this.onGetOpenUsers.emit(responseP)
-        // app.users = responseP
-        //   this.onGetOpenUsers(res)
       }
-      // if (response.type === 'getPlayersUser') {
-      //     console.log('PLAYERS', response.content)
-      // }
       if (response.type === 'getUserList' && response.content) {
-        this.onGetUserList.emit(JSON.parse(response.content))
+         this.onGetUserList.emit(JSON.parse(response.content))
       }
       if (response.type === 'oneCategoryLeft') {
         this.oneChoosedCategory.emit(response.content)
         return
       }
       if (response.type === 'chooseCategory') {
-
+        console.log("Choose",response.content)
         const _response = JSON.parse(response.content)
-
-
         this.activePlayer = _response.activePlayer
         this.redrawCategories.emit(_response.category)
       }
@@ -94,29 +68,29 @@ export class ClientSocketModel {
         this.onStartGame.emit(null)
 
       }
-      if (response.type === 'questionParamsResponse') {
-        const _response:IQuestions[] = JSON.parse(response.content)
-        this.onGetServerQuestions.emit({
-          questions: _response,
-          players: {
-            player: this.userConnectionName,
-            opponent: this.players.filter(pl => pl !== this.userConnectionName)[0]
-          }
+      if (response.type === 'playersFromServer') {
+        const _response = JSON.parse(response.content)
+        this.onPlayersFromServer.emit({
+          player: this.userConnectionName,
+          opponent: _response.players.filter((e: string) => e != this.userConnectionName)[0],
+          question: JSON.parse(_response.question)
         })
-
       }
       if (response.type === 'onAnswer') {
-       const _response = JSON.parse(response.content)
-          const correctResponse: IServerBothAnswer=null
-          if(_response.player.name===this.userConnectionName){
-              this.onBothAnswer.emit(_response)
-          }else{
-              this.onBothAnswer.emit({
-                  "player": _response.opponent,
-                  "opponent":_response.player})
-          }
+        const _response = JSON.parse(response.content)
+        const player = _response.players.filter((player: IPlayerAnswer) => player.name === this.userConnectionName)[0]
+        const opponent = _response.players.filter((player: IAnswerObj) => player.name !== this.userConnectionName)[0]
+        console.log(player,opponent)
+        console.log(response.content)
+        this.onBothAnswer.emit({player, opponent, question: _response.question, correct: _response.correct})
 
-        //---- this.onNextQuestion.emit(null)
+      }
+      if (response.type === 'onGetNextQuestion') {
+        const _response = JSON.parse(response.content)
+        this.onGetServerNextQuestion.emit(JSON.parse(_response))
+      }
+      if (response.type === 'onFinishRound') {
+        console.log(JSON.parse(response.content))
       }
     }
     this.websocket.onerror = () => {
@@ -127,49 +101,29 @@ export class ClientSocketModel {
 
   getOnlineUsers(name: string) {
     this.userConnectionName = name
-    const request = {
-      type: 'getUserList',
-      content: name,
-    }
-    this.websocket.send(JSON.stringify(request))
-  }
+    this.sendRequest('getUserList',name)
+   }
 
   chooseCategory(category: string) {
-    if (this.activePlayer !== this.userConnectionName) {
-      console.log('you are not active player')
-      return
-    } else {
-      const request = {
-        type: 'chooseCategory',
-        content: JSON.stringify({category, roomId: this.roomId}),
-      }
-      this.websocket.send(JSON.stringify(request))
+    console.log("^^^&&&&",category)
+    if (this.activePlayer !== this.userConnectionName) return
+    else {
+      this.sendRequest('chooseCategory',{category, roomId: this.roomId})
     }
   }
 
   startGame(data: IStartGame) {
-    const request = {
-      type: 'startGame',
-      content: JSON.stringify(data),
+    this.sendRequest('startGame',data)
     }
-    this.websocket.send(JSON.stringify(request))
-  }
 
   sendGameParams(params: IParams) {
-    const requestOpen = {
-      type: 'sendGameParams',
-      content: JSON.stringify({...params, roomId: this.roomId})
-    }
-    this.websocket.send(JSON.stringify(requestOpen))
+    this.sendRequest("sendGameParams",{...params, roomId: this.roomId, playerName: this.userConnectionName})
   }
 
   getOpenUsers() {
-    const requestOpen = {
-      type: 'getOpenUsers',
-      content: ''
-    }
-    this.websocket.send(JSON.stringify(requestOpen))
-  }
+    console.log("SEND")
+    this.sendRequest('getOpenUsers',{})
+  } 
 
   getPlayersName() {
     return {
@@ -178,22 +132,63 @@ export class ClientSocketModel {
       activePlayer: this.activePlayer
     }
   }
-  answer(answer: boolean, index: number, author: string) {
-      console.log("MODEL,Answer",answer,index,author)
-    //TODO
-    if (this.questionIndex === index) {
-      return
-    }
-    this.questionIndex = index
+
+  onAnswer(author: string) {
+    this.sendRequest('onAnswer', {
+      name: this.userConnectionName,
+      roomId: this.roomId,
+      author
+    })
+  }
+
+  nextQuestionFromServer() {
+    this.sendRequest('onGetNextQuestion',{
+      roomId: this.roomId,
+    })
+  }
+
+  sendRequest(type: string, data: string|Record<string, string | {[key:string]:string|string[]}>|IStartGame) {
     const requestMessage = {
-      type: 'onAnswer',
-      content: JSON.stringify({
-        answer,
-        name: this.userConnectionName,
-        roomId: this.roomId,
-        author
-      })
+      type: type,
+      content: JSON.stringify(data)
     }
     this.websocket.send(JSON.stringify(requestMessage))
   }
+
+
 }
+
+
+// public getQuestion(){
+//      const requestMessage = {
+//          type: 'getQuestion',
+//          content: this.roomId
+//      }
+//      this.websocket.send(JSON.stringify(requestMessage))
+//  }
+
+// if (response.type === 'questionFromServer') {
+//   console.log("getModel")
+//   this.onGetQuestion.emit(JSON.parse(response.content))
+// }
+// if (response.type === 'questionParamsResponse') {
+//      const _response: IWorkItem[][] = JSON.parse(response.content)
+//      this.onGetServerQuestions.emit({
+//          questions: _response,
+//          players: {
+//              player: this.userConnectionName,
+//              opponent: this.players.filter(pl => pl !== this.userConnectionName)[0]
+//          }
+//      })
+//
+//  }
+// this.onGetServerQuestions.emit({
+//     questions: _response,
+//     players: {
+//         player: this.userConnectionName,
+//         opponent: this.players.filter(pl => pl !== this.userConnectionName)[0]
+//     }
+// })
+// if (response.type === 'getPlayersUser') {
+//     console.log('PLAYERS', response.content)
+// }

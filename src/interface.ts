@@ -5,11 +5,12 @@ export interface IWorkItem {
   imageNum: string;
 }
 
-export interface IAnswerObj {
-  itemArray: IWorkItem[],
-  correct: IWorkItem,
-  clickedAnswer: IWorkItem
-}
+export interface IAnswerObj
+{
+  name:string,
+  isCorrect:boolean,
+  author:string}
+
 
 export interface IServerResponseMessage {
   type: string;
@@ -25,7 +26,11 @@ export interface IGameSettings {
   number: number,
   categories: string[]
 }
-
+export interface IPlayersResponse {
+  player: string,
+  opponent: string,
+  question: IWorkItem[]
+}
 export type IUsernameList = string[]
 
 export interface IStartGame{
@@ -77,6 +82,24 @@ export interface IRoom {
     currentPlayer: number
   }
 
+}
+export interface IPlayerAnswer {
+  name: string,
+  isCorrect:boolean,
+  author: string
+}
+export interface IServerBothAnswer {
+  player: IPlayerAnswer,
+  opponent: IPlayerAnswer,
+  question: IWorkItem[],
+  correct:string
+}
+
+export interface IServerQuestions {
+  questions: IWorkItem[][],
+  players: {
+    player: string, opponent: string
+  }
 }
 
 export interface IChooseCategoryData {

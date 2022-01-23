@@ -8,8 +8,8 @@ export class Header extends Control{
     public onHomeButton:Signal<null>= new Signal<null>()
     constructor(parentElement:HTMLElement){
         super(parentElement)
-        this.header=new Control(parentElement,'header','header','header')
-        this.homeButton= new Control(this.header.node,'button','','Home')
+        this.node.classList.add('header')
+        this.homeButton= new Control(this.node,'button','','Home')
         this.homeButton.node.onclick=()=>this.onHomeButton.emit(null)
     }
 }

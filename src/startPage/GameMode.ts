@@ -2,7 +2,8 @@ import Control from "../common/controll";
 import {OnlineLobby} from "./OnlineLobby";
 import {observer} from "../common/observer";
 import {ICategory} from "../interface";
-import {GameBy, ShowCategories} from "./GameBy";
+import {GameBy} from "./GameBy";
+import {ShowCategories} from "./ShowCategories";
 
 export class GameMode extends Control {
   public onChoosedCategory: (cat: ICategory) => void;
@@ -25,7 +26,6 @@ export class GameMode extends Control {
     this.startPage = startPage
     this.getMode=getMode
     this.node.classList.add('gameMode')
-   // this.choosedMode=choosedMode
     this.gameMode = new Control(this.node, 'div', 'start-page-gameMode')
     this.singleGame = new Control(this.gameMode.node, 'div', 'single-game', 'Single Game')
     this.singleGame.node.addEventListener('click', (e) => {
@@ -60,9 +60,8 @@ export class GameMode extends Control {
 
   singleDrawCategories(mode: string) {
     this.onChoosedSort(mode)
-   console.log(this.getMode(),'&&&^&^&')
     this.showCategories = new ShowCategories(this.startPage,false,'single')
-    this.showCategories.onChoosedCategory = (category) => {
+    this.showCategories.onChoosedCategory = (category:ICategory) => {
       this.onChoosedCategory(category)
     }
   }

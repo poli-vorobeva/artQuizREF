@@ -8,14 +8,18 @@ import {categoriesList} from "./images";
 import Signal from "./common/singal";
 import {OnlineGameField} from "./gameField/OnlineGameGield";
 import {Header} from "./header/Header";
-export interface IQuestions{
-  correct:IWorkItem
-  variants:IWorkItem[]
+import {observer} from "./common/observer";
+
+export interface IQuestions {
+  correct: IWorkItem
+  variants: IWorkItem[]
 }
+
 export interface ISmallCycle {
   player?: string,
   opponent?: string,
   prevCycleAnswersArray?: IAnswerObj[],
+  question?: IWorkItem[]
 }
 
 export class App extends Control {
@@ -40,7 +44,7 @@ export class App extends Control {
 
   constructor(parentNode: HTMLElement) {
     super(parentNode);
-    this.parentNode= parentNode;
+    this.parentNode = parentNode;
     this.users = []
     this.randomNumber = 0
     this.addPlayer = ''
@@ -59,9 +63,9 @@ export class App extends Control {
 
     this.questions = null
     this.choosedCategory = null
-    this.header=new Header(this.node)
+    this.header = new Header(this.node)
     this.gameCycle()
-    this.header.onHomeButton.add((params=>{
+    this.header.onHomeButton.add((params => {
       this.startPage && this.startPage.destroy()
       this.gameField && this.gameField.destroy()
       this.gameCycle()
@@ -96,24 +100,32 @@ export class App extends Control {
       this.clientSocketModel.sendGameParams(this.getQuestionsParams());
       // this.smallCycle()
     })
+    this.clientSocketModel.onPlayersFromServer.add(params => {
+      this.smallCycle({
+        player: params.player,
+        opponent: params.opponent,
+        question: params.question
+      })
+    })
     this.clientSocketModel.onStartGame.add((params) => {
+      //  this.clientSocketModel.getQuestion()
       this.startPage.userUl.destroy()
       this.startPage.onlineSettingsInit()
     })
-    this.clientSocketModel.onGetServerQuestions.add((params) => {
-      this.serverQuestions = params.questions
-
-      this.smallCycle({
-        player: params.players.player,
-        opponent: params.players.opponent
-      })
-    })
-    this.clientSocketModel.onNextQuestion.add((params) => {
-      //прокидывать наверх окончание вопроса. и только потом
-      this.gameField.onlineDrawNextQuestion()
-    })
     this.clientSocketModel.onBothAnswer.add((params) => {
-      this.gameField.onBothAnswer(params)
+      console.log('App-', params)
+      //**
+      this.gameField.getAnswer(params.player, params.opponent, params.correct)
+
+      //this.gameField.questionItems.styleHideOutQuestion()
+
+      //   this.gameField.questionItems.nextQuestionFromServer(params.question)
+
+
+    })
+    this.clientSocketModel.onGetServerNextQuestion.add((params) => {
+
+      this.gameField.renderNextServerQuestion(params)
     })
     this.startPage.onChoosedMode = (mode) => {
       this.choosedMode = mode
@@ -138,7 +150,7 @@ export class App extends Control {
       this.smallCycle({})
     }
     this.startPage.onSort = (sort: string) => {
-      console.log("SingleSort",sort)
+      //console.log("SingleSort", sort)
       this.startPage.gameMode.destroy()
       this.questions = sort
     }
@@ -161,33 +173,32 @@ export class App extends Control {
         : this.smallCycleContent('single')
     }
     else if (this.choosedMode === 'online') {
+      console.log(params,')))')
       const onlineGameField = new OnlineGameField(this.node, params.player, params.opponent)//ответ имя игрока и оппонента
-      this.smallCycleContent('online')
-    }
-  }
+      params.question ? this.smallCycleContent('online', null, params.question) : this.smallCycleContent('online')
 
-  public getServerQuestions() {
-    //console.log('get',this.serverQuestions)
-    return this.serverQuestions
+    }
   }
 
   public getCategories() {
     const categoriesToServer: string[] = []
     categoriesList.forEach(cat => categoriesToServer.push(cat.russian))
     return categoriesToServer
-    //  this.clientSocketModel.getCategories()
   }
 
-  private smallCycleContent(gameMode: string, array?: IAnswerObj[]) {
+  private smallCycleContent(gameMode: string, array?: IAnswerObj[], question?: IWorkItem[]) {
     this.gameField = new GameField(
-      this.node, this.getQuestionsParams(), this.serverQuestions, array)
+      this.node, this.getQuestionsParams(), array, question)
     this.gameField.node.classList.add('gameField')
-    this.gameField.onAnswer = (answer, index, author) => {
-      this.clientSocketModel.answer(answer, index, author)
+    this.gameField.onAnswer = (author) => {
+        this.clientSocketModel.onAnswer(author)
+    }
+    this.gameField.nextQuestionFromServer = () => {
+      this.clientSocketModel.nextQuestionFromServer()
     }
     this.gameField.finishClick = (value) => {
       this.gameField.destroy()
-      this.finishScreen= new FinishScreen(this.node)
+      this.finishScreen = new FinishScreen(this.node)
       this.gameCycle()
       //TODO сделать кнопку домой
       //следать кнопку- выйти из комнаты- лобби с онлайн игрокамии
