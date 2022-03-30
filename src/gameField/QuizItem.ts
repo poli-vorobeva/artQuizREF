@@ -42,7 +42,7 @@ export class QuestionItem extends Control {
       ? 'byWorkWrapper' : 'byPainterWrapper')
     const title = by === 'works' ? `какую из этих картин написал ${question[0].author} ?`
       : `Какой художник написал эту картину ?`
-    const paintItem = new Control(wrapper.node, 'div', 'byWork__image')
+    const paintItem = new Control(wrapper.node, 'div', by === 'works'?'byPainter':'byWork__image')
     by !== 'works' && (paintItem.node.style.backgroundImage = `url(./public/assets/img/${question[0].imageNum}.jpg)`)
     const titleEl = new Control(paintItem.node, 'h4', '', title)
     this.shuffledArray.forEach((p: IWorkItem) => {

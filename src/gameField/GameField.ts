@@ -30,7 +30,7 @@ export class GameField extends Control {
   private questionIndex: number;
   private by: string;
   private mode: string;
-
+  onFinishClick:()=>void
   constructor(parentNode: HTMLElement,
               params: IParams,
               answerArray?: IAnswerObj[],
@@ -49,15 +49,11 @@ export class GameField extends Control {
     }
   }
 renderMultiQuestion(question:IWorkItem[],params?:IParams){
-    console.log(params)
   this.mode=params?.mode
   this.by=params?.by
   this.questionItem = new QuestionItem(this.node, question, this.mode, this.by)
-
   this.questionItem.node.classList.add('questionItem')
-  this.questionItem.onAnswer = (author) => {
-    this.onAnswer(author)
-  }
+  this.questionItem.onAnswer = (author) => this.onAnswer(author)
 }
 
   renderNextServerQuestion(params: IWorkItem[]){
@@ -75,6 +71,7 @@ renderMultiQuestion(question:IWorkItem[],params?:IParams){
       }
       else {
         //TODO finishScreen
+        this.finishClick(true)
       }
     }
   }

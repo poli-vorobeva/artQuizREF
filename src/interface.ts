@@ -3,6 +3,7 @@ export interface IWorkItem {
   name: string;
   year: string;
   imageNum: string;
+  imageElement?:HTMLImageElement
 }
 
 export interface IAnswerObj

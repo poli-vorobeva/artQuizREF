@@ -52,9 +52,9 @@ export class GameMode extends Control {
       this.onlineLobby.onShowOnlineUsers = (input) => {
         this.onShowOnlineUsers(input)
       }
-      observer.addListener('startGame', () => {
-        this.onlineLobby.destroy()
-      })
+      // observer.addListener('startGame', () => {
+      //   this.onlineLobby.destroy()
+      // })
     }
   }
 
