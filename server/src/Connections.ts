@@ -97,6 +97,12 @@ export default class Connections {
 			}
 		})
 	}
+
+	getUsersList(name: string, connection: connection) {
+		this.addConnection(name, connection)
+		this.addClient(name)
+		this.sendUserList()
+	}
 }
 
 function response(type: string, content: any) {
