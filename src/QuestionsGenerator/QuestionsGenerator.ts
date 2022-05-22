@@ -18,6 +18,7 @@ export class QuestionsGenerator {
   public questionsArray: IWorkItem[][];
 
   constructor(params: IParams) {
+    console.log("QuestGen")
     this.painters = params.category.painters
     const works: IWorkItem[][] = []
     this.painters.forEach(p => {

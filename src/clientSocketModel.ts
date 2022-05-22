@@ -43,38 +43,34 @@ export class ClientSocketModel {
         return
       },
       chooseCategory: (data) => {
-        const _response = JSON.parse(data)
-        this.activePlayer = _response.activePlayer
-        this.redrawCategories.emit(_response.category)
+        this.activePlayer = data.activePlayer
+        this.redrawCategories.emit(data.category)
       },
       startGame: (data) => {
-        const responseObj: IStartGameData = JSON.parse(data)
-        this.players = responseObj.usersInGame
-        responseObj.playerName = this.userConnectionName
-        this.activePlayer = responseObj.activePlayer
-        this.onOnlineSettings.emit(responseObj);
-        this.roomId = responseObj.roomId;
+       this.activePlayer = data.activePlayer
+        this.onOnlineSettings.emit(data);
+        this.roomId = data.roomId;
         this.onStartGame.emit(null)
       },
       playersFromServer: (data) => {
-        const _response = JSON.parse(data)
+       
         this.onPlayersFromServer.emit({
           player: this.userConnectionName,
-          opponent: _response.players.filter((e: string) => e != this.userConnectionName)[0],
-          question: JSON.parse(_response.question)
+          opponent: data.players.filter((e: string) => e != this.userConnectionName)[0],
+          question: JSON.parse(data.question)
         })
       },
       onAnswer: (data) => {
-        const _response = JSON.parse(data)
-        const player = _response.players.filter((player: IPlayerAnswer) => player.name === this.userConnectionName)[0]
-        const opponent = _response.players.filter((player: IAnswerObj) => player.name !== this.userConnectionName)[0]
-        this.onBothAnswer.emit({player, opponent, question: _response.question, correct: _response.correct})
+        const player = data.players.filter((player: IPlayerAnswer) => player.name === this.userConnectionName)[0]
+        const opponent = data.players.filter((player: IAnswerObj) => player.name !== this.userConnectionName)[0]
+        this.onBothAnswer.emit({player, opponent, question: data.question, correct: data.correct})
       },
       onGetNextQuestion: (data) => {
         const _response = JSON.parse(data)
         this.onGetServerNextQuestion.emit(JSON.parse(_response))
       },
       onFinishRound: (data) => {
+        console.log(data)
         console.log(JSON.parse(data))
       }
     }

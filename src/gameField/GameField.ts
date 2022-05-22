@@ -4,7 +4,6 @@ import './GameField.css'
 import {GameController} from "./GameController";
 import {IAnswerObj, IParams, IPlayerAnswer, IServerBothAnswer, IWorkItem} from "../interface";
 import {QuestionItems} from "./QuizItems";
-//import {IServerBothAnswer} from "../clientSocketModel";
 import {IQuestions} from "../app";
 import Signal from "../common/singal";
 import {QuestionItem} from "./QuizItem";
@@ -44,7 +43,6 @@ export class GameField extends Control {
       this.renderSingleQuestion(questions, params)
     }
     else {
-      //TODO Multi
       this.renderMultiQuestion(question, params)
     }
   }

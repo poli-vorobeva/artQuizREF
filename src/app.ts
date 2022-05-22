@@ -8,7 +8,6 @@ import { categoriesList } from "./images";
 import Signal from "./common/singal";
 import { OnlineGameField } from "./gameField/OnlineGameGield";
 import { Header } from "./header/Header";
-import { observer } from "./common/observer";
 export interface IQuestions {
     correct: IWorkItem
     variants: IWorkItem[]
@@ -28,37 +27,26 @@ export class App extends Control {
     public choosedCategory: null | ICategory;
     public gameField: GameField;
     public users: string[];
-    public addPlayer: string;
-    public currentRoom: IRoom;
-    public isActivePlayer: boolean;
     public randomNumber: number;
     public categories: string[];
     private currentUser: string;
     private clientSocketModel: ClientSocketModel;
     private startPage: StartPage;
-    private serverQuestions: IQuestions[]
     private header: Header;
-    private parentNode: HTMLElement;
     private finishScreen: FinishScreen;
 
     constructor(parentNode: HTMLElement) {
         super(parentNode);
-        this.parentNode = parentNode;
         this.users = []
         this.randomNumber = 0
-        this.addPlayer = ''
         this.currentUser = ''
-        this.isActivePlayer = false
         this.categories = []
-        this.currentRoom = null
         this.clientSocketModel = new ClientSocketModel(this.setSettingsData)
 
         this.categorySignal.add((category) => {
             this.clientSocketModel.chooseCategory(category)
         })
-        this.clientSocketModel.onGetOpenUsers.add((users) => {
-            this.users = users
-        })
+        this.clientSocketModel.onGetOpenUsers.add((users) => this.users = users)
 
         this.questions = null
         this.choosedCategory = null
@@ -71,11 +59,11 @@ export class App extends Control {
         }))
     }
 
-    getChoosedMode() {
+    private getChoosedMode() {
         return this.choosedMode
     }
 
-    gameCycle() {
+    private gameCycle() {
         this.startPage = new StartPage(this.node, this.getChoosedMode)
         this.clientSocketModel.onGetUserList.add((params) => this.socketOnGetUserList(params))
         this.clientSocketModel.redrawCategories.add((params) => this.startPage.redrawCategories(params))
@@ -106,7 +94,7 @@ export class App extends Control {
             this.smallCycle()
         }
     }
-    showOnlineUsers(input: HTMLInputElement) {
+    private showOnlineUsers(input: HTMLInputElement) {
         this.currentUser = input.value
         this.clientSocketModel.getOnlineUsers(this.currentUser)
         this.clientSocketModel.onOnlineSettings.add((params) => {
@@ -116,16 +104,16 @@ export class App extends Control {
             this.startPage.serverRandom = this.randomNumber
         })
     }
-    socketOnBothAnswer(params: IServerBothAnswer): void {
+    private socketOnBothAnswer(params: IServerBothAnswer): void {
         this.gameField.getAnswer(params.player, params.opponent, params.correct)
         //this.gameField.questionItems.styleHideOutQuestion()
         //   this.gameField.questionItems.nextQuestionFromServer(params.question)
     }
-    socketOnStartGame(): void {
+    private socketOnStartGame(): void {
         this.startPage.userUl.destroy()
         this.startPage.onlineSettingsInit()
     }
-    socketOnGetUserList(params: IUsernameList) {
+    private socketOnGetUserList(params: IUsernameList) {
         this.users = params
         this.startPage.drawOnlineUsers(this.users)
         this.startPage.onStartOnlineGame = (user) => {
@@ -141,15 +129,14 @@ export class App extends Control {
             this.startPage.destroy()
         }
     }
-    socketOnChooseCategory(category: string) {
-
+    private socketOnChooseCategory(category: string) {
         const leftCategory = categoriesList.find(el => el.russian === category)
         this.choosedCategory = leftCategory
         this.startPage.onlineSettingsDestroy()
         this.clientSocketModel.sendGameParams(this.getQuestionsParams());
 
     }
-    socketOnPlayersFromServer(params: IPlayersResponse) {
+    private socketOnPlayersFromServer(params: IPlayersResponse) {
         this.smallCycle({
             player: params.player,
             opponent: params.opponent,
@@ -157,21 +144,18 @@ export class App extends Control {
         })
     }
     //todo на финишкой странице отображаем данные юзера
-    setSettingsData(category: string[], _number: number): void {
+    private setSettingsData(category: string[], _number: number): void {
         this.randomNumber = _number
         this.categories = category
     }
 
-    smallCycle(params?: ISmallCycle) {
+    private smallCycle(params?: ISmallCycle) {
         if (this.choosedMode === 'single') {
             this.startPage.destroy()
-            params ? this.smallCycleContent('single', params.prevCycleAnswersArray)
-                : this.smallCycleContent('single')
+            this.smallCycleContent('single')
         } else if (this.choosedMode === 'online') {
-            console.log(params, ')))')
             const onlineGameField = new OnlineGameField(this.node, params.player, params.opponent)//ответ имя игрока и оппонента
             params.question ? this.smallCycleContent('online', null, params.question) : this.smallCycleContent('online')
-
         }
     }
 
@@ -203,7 +187,7 @@ export class App extends Control {
         }
     }
 
-    getQuestionsParams() {
+    private getQuestionsParams() {
         return {
             mode: this.choosedMode,
             by: this.questions,
