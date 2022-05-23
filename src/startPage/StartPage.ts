@@ -24,7 +24,7 @@ export class StartPage extends Control {
   public onSort: (sort: string) => void
   parent: HTMLElement;
   public gameModeWrapper: Control<HTMLElement>;
-
+alert:Control<HTMLElement>
   constructor(parentNode: HTMLElement,getMode:()=>string) {
     super(parentNode);
     this.node.classList.add('startPage')
@@ -75,13 +75,15 @@ export class StartPage extends Control {
 
   drawOnlineUsers(users: string[]) {
     this.userUl.node.innerHTML = null
-    users && users.forEach((user: string) => {
+    const usrs=users.filter(e=>e)
+    usrs.length>0 ? users.forEach((user: string) => {
       if (user) {
         const lis = new Control(this.userUl.node, 'li')
         const button = new Control(lis.node, 'button', '', user)
         button.node.onclick = () => this.onStartOnlineGame(user)
       }
     })
+      :new Control(this.userUl.node,'h4','','There is no players yet')
   }
 
 }

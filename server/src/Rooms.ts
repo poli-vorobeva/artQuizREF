@@ -48,6 +48,10 @@ export default class Rooms {
 		console.log('category-----',category)
 		room.category=room.category.filter(categ => categ !== category)
 		console.log("RRROMcatag",room.category)
+		//todo after choose your partner, partner should get an announcement
+		//todo if two players starts the game, this players should hide from openPlayers list
+		//todo--done-- after get the open players the form with input should be hidden
+		//todo --done-- if no open players - write: there is no players yet
 		if (room.category.length === 1) {
 			console.log("ONEEEEEEEEEEEEEEEEEEE")
 			this.onSendResponseMessage({responseType:'oneCategoryLeft',category:room.category[0],roomId:room.id})
