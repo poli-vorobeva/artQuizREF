@@ -72,7 +72,7 @@ export class ServerSocket {
 							this.connects.addClient(this.userName)
 							const otherUsers = this.connects.usersWithoutCurrentUser(this.userName)
 							const responseMessage: IServerResponseMessage = response('getUserList', otherUsers)
-							connection.sendUTF(JSON.stringify(responseMessage))
+							//connection.sendUTF(JSON.stringify(responseMessage))
 							this.connects.sendUserList()
 						}
 						if (requestMessage.type === 'getOpenUsers') {
@@ -88,10 +88,12 @@ export class ServerSocket {
 
 							const openUsers = this.connects.getOpenPlayers()
 
-//console.log(openUsers,'$$$$')
+							//todo send list of openUsers only players wait
+console.log(openUsers,'openusers$$$$')
 							openUsers.map(e => e && e.name).filter(client => client)
 							openUsers.forEach(user => {
-								if (!user) return
+								console.log(user,'^^^')
+								if (!user || user.status=='game') return
 							//	console.log(openUsers,'__________')
 								//const openWithoutCurrent=this.connects.usersWithoutCurrentUser(user.name)
 							//	console.log(openWithoutCurrent,'&&&&')

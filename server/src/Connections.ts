@@ -36,9 +36,15 @@ export default class Connections {
 	}
 
 	sendUserList() {
+		const openUsersList=this.clients.map(cl=> {
+			if(cl.status !== 'game'){
+				return cl
+			}
+			return
+		})
 		this.connections.forEach(client => {
-			const responseMessage: IServerResponseMessage = response('getUserList',
-				this.usersWithoutCurrentUser(client.name))
+		const responseMessage: IServerResponseMessage = response('getUserList',
+				this.usersWithoutCurrentUser(client.name,openUsersList))
 			client.connection.sendUTF(JSON.stringify(responseMessage))
 		})
 	}

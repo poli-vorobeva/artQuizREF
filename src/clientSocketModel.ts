@@ -34,6 +34,7 @@ export class ClientSocketModel {
 		this.types = {
 			getUserList: (data) => this.onGetUserList.emit(data),
 			getOpenUsers: (data) => {
+				console.log('!!!',data)
 				const responseNames = data.map((e: IUser) => e && e.name != this.userConnectionName)
 				this.onGetOpenUsers.emit(responseNames)
 			},
