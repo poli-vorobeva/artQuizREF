@@ -87,9 +87,14 @@ export class ServerSocket {
 							this.connects.changeClientStatus(playersArray[0], playersArray[1], roomElement.id)
 
 							const openUsers = this.connects.getOpenPlayers()
+
+//console.log(openUsers,'$$$$')
 							openUsers.map(e => e && e.name).filter(client => client)
 							openUsers.forEach(user => {
 								if (!user) return
+							//	console.log(openUsers,'__________')
+								//const openWithoutCurrent=this.connects.usersWithoutCurrentUser(user.name)
+							//	console.log(openWithoutCurrent,'&&&&')
 								const openConnection = this.connects.findConnection(user.name)
 								const responseMessage: IServerResponseMessage = response('getOpenUsers', openUsers)
 								openConnection.connection.sendUTF(JSON.stringify(responseMessage))

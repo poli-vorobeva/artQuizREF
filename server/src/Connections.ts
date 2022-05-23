@@ -21,7 +21,7 @@ export default class Connections {
 
 	addClient(userName: string) {
 		this.clients.push({name: userName, status: 'wait', room: null})
-		console.log(this.clients,'$#$#$')
+		console.log(this.clients, '$#$#$')
 	}
 
 	usersWithoutCurrentUser(userName: string, array = this.clients) {
@@ -65,12 +65,17 @@ export default class Connections {
 	}
 
 	getOpenPlayers() {
-		console.log(this.clients,'---Clients')
+		console.log(this.clients, '---Clients')
 		return this.clients.map(client => {
 			if (client.status != 'game') {
 				return client
 			}
 		})
+	}
+
+	getOpenPlayersExceptCurrent(userName: string) {
+		const openUsers = this.getOpenPlayers()
+		return openUsers.map(e => e && e.name != userName)
 	}
 
 	getOpenUsers() {

@@ -46,7 +46,11 @@ export class App extends Control {
         this.categorySignal.add((category) => {
             this.clientSocketModel.chooseCategory(category)
         })
-        this.clientSocketModel.onGetOpenUsers.add((users) => this.users = users)
+        this.clientSocketModel.onGetOpenUsers.add((users) => {
+            this.users = users
+            console.log("this.users",this.users)
+            this.startPage.drawOnlineUsers(this.users)
+        })
 
         this.questions = null
         this.choosedCategory = null
@@ -182,7 +186,6 @@ export class App extends Control {
                 this.finishScreen.destroy()
                 this.gameCycle()
             }
-            //TODO сделать кнопку домой
             //следать кнопку- выйти из комнаты- лобби с онлайн игрокамии
         }
     }

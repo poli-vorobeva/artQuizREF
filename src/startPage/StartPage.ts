@@ -74,6 +74,7 @@ alert:Control<HTMLElement>
   }
 
   drawOnlineUsers(users: string[]) {
+  console.log(users,'$$$$')
     this.userUl.node.innerHTML = null
     const usrs=users.filter(e=>e)
     usrs.length>0 ? users.forEach((user: string) => {
