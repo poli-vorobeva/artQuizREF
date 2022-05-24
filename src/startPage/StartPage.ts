@@ -13,6 +13,7 @@ export class StartPage extends Control {
   onChoosedSort: (sort: string) => void
   onShowOnlineUsers: (input: HTMLInputElement) => void
   onStartOnlineGame: (user: string) => void
+  onSendInvitation:(user:string)=>void
   public gameMode: GameMode;
  // private parent: App;
   public userUl: Control<HTMLElement>;
@@ -22,9 +23,13 @@ export class StartPage extends Control {
   public onlineSettingsDestroy: () => void;
   public onExcludedCategory: (category: string) => void
   public onSort: (sort: string) => void
-  parent: HTMLElement;
+  //onInviteAnswer:(data:{players:{to:string,from:string},answer:string})=>void
+  onDeclineInvite:(data:{players:{to:string,from:string}})=>void
+    parent: HTMLElement;
   public gameModeWrapper: Control<HTMLElement>;
 alert:Control<HTMLElement>
+  private waitDiv: Control<HTMLElement>;
+  private waitingForPlayer: string;
   constructor(parentNode: HTMLElement,getMode:()=>string) {
     super(parentNode);
     this.node.classList.add('startPage')
@@ -55,6 +60,7 @@ alert:Control<HTMLElement>
   }
 
   onlineSettingsInit() {
+    this.waitDiv && this.waitDiv.destroy()
     this.gameModeWrapper.destroy()
     this.onlineSettings = new OnlineGameSettings(
       this.parent, this.serverCategories, this.serverRandom)
@@ -74,17 +80,50 @@ alert:Control<HTMLElement>
   }
 
   drawOnlineUsers(users: string[]) {
-  console.log(users,'$$$$')
     this.userUl.node.innerHTML = null
     const usrs=users.filter(e=>e)
     usrs.length>0 ? users.forEach((user: string) => {
       if (user) {
         const lis = new Control(this.userUl.node, 'li')
         const button = new Control(lis.node, 'button', '', user)
-        button.node.onclick = () => this.onStartOnlineGame(user)
+        button.node.onclick = () =>{
+          console.log('click',user)
+          this.waitDiv=new Control(this.node,'div','','Wait Answer...')
+          //todo wait div with timer
+          this.onSendInvitation(user)
+          //------>this.onStartOnlineGame(user)
+        }
+
       }
     })
       :new Control(this.userUl.node,'h4','','There is no players yet')
   }
 
+  renderIntive(params: { from: string; to: string }) {
+    const inviteDiv= new Control(this.node,'div','inviteDiv',`Do you want to play with ${params.from}`)
+    const yesButton= new Control(inviteDiv.node,'button','inviteYesButton','YES')
+    yesButton.node.onclick=()=>{
+    //  this.onInviteAnswer({players:{to:params.from,from:params.to},answer:'yes'})
+      this.onStartOnlineGame(params.from)
+      inviteDiv.destroy()
+    }
+    const noButton= new Control(inviteDiv.node,'button','inviteNoButton','No')
+    noButton.node.onclick=()=>{
+      this.onDeclineInvite({players:{to:params.from,from:params.to}})
+      inviteDiv.destroy()
+    }
+  }
+
+  // getInviteAswer(params: { from: string; to: string }) {
+  //   this.waitingForPlayer=null
+  //   this.waitDiv.destroy()
+  //   if(yes start)
+  // }
+  declineInvite(params: { from: string; to: string }) {
+    console.log('declne')
+    if(this.waitDiv){
+    (this.waitDiv.node.innerHTML='your invite has been declined')
+      setTimeout(()=>this.waitDiv.destroy(),500)
+    }
+  }
 }

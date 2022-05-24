@@ -76,8 +76,19 @@ export class App extends Control {
         this.clientSocketModel.onStartGame.add((params) => this.socketOnStartGame())
         this.clientSocketModel.onBothAnswer.add((params) => this.socketOnBothAnswer(params))
         this.clientSocketModel.onGetServerNextQuestion.add((params) => this.gameField.renderNextServerQuestion(params))
+       this.clientSocketModel.onGetInvite.add((params)=>this.startPage.renderIntive(params))
+       this.clientSocketModel.declineInvite.add(params => this.startPage.declineInvite(params))
         this.startPage.onChoosedMode = (mode) => this.choosedMode = mode
-
+        this.startPage.onSendInvitation=(user:string)=>{
+            console.log('sendINv')
+            this.clientSocketModel.sendRequest('sendInvite', {
+                from: this.currentUser,
+                to:user
+            })
+        }
+        this.startPage.onDeclineInvite=(data)=>{
+            this.clientSocketModel.onDeclineInvite(data)
+        }
         this.startPage.onShowOnlineUsers = (input) => {
             if (!input.value) return
             this.showOnlineUsers(input)
@@ -120,6 +131,7 @@ export class App extends Control {
     private socketOnGetUserList(params: IUsernameList) {
         this.users = params
         this.startPage.drawOnlineUsers(this.users)
+
         this.startPage.onStartOnlineGame = (user) => {
             this.clientSocketModel.sendRequest('startGame', {
                 users: `${this.currentUser}+V+${user}`,

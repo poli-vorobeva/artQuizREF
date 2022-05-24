@@ -78,8 +78,19 @@ export class ServerSocket {
 						if (requestMessage.type === 'getOpenUsers') {
 							this.connects.getOpenUsers()
 						}
+						if(requestMessage.type==='sendInvite'){
+							const content= JSON.parse(requestMessage.content)
+							const findToConnection= this.connects.findConnection(content.to)
+							const responseMessage= response('getInvite',JSON.stringify({from:content.from, to:content.to}))
+							findToConnection.connection.sendUTF(JSON.stringify(requestMessage))
+						}
+						if(requestMessage.type==='declineInvite'){
+							const content= JSON.parse(requestMessage.content)
+							const findToConnection= this.connects.findConnection(content.players.to)
+							const responseMessage= response('declineInvite','')
+							findToConnection.connection.sendUTF(JSON.stringify(requestMessage))
+						}
 						if (requestMessage.type === 'startGame') {
-							console.log("STARTGame")
 							const content = JSON.parse(requestMessage.content)
 							const playersArray: Array<string> = content.users.split('+V+')
 							const roomElement = this.rooms.createRoomData(playersArray, content.categories)
@@ -89,12 +100,9 @@ export class ServerSocket {
 							const openUsers = this.connects.getOpenPlayers()
 
 							//todo send list of openUsers only players wait
-console.log(openUsers,'openusers$$$$')
 							openUsers.map(e => e && e.name).filter(client => client)
 							openUsers.forEach(user => {
-								console.log(user,'^^^')
 								if (!user || user.status=='game') return
-							//	console.log(openUsers,'__________')
 								//const openWithoutCurrent=this.connects.usersWithoutCurrentUser(user.name)
 							//	console.log(openWithoutCurrent,'&&&&')
 								const openConnection = this.connects.findConnection(user.name)

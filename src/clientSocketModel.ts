@@ -17,6 +17,8 @@ export class ClientSocketModel {
 	public onOnlineSettings: Signal<IStartGameData> = new Signal<IStartGameData>();
 	public onStartGame: Signal<null> = new Signal<null>();
 	public onGetServerQuestions: Signal<IServerQuestions> = new Signal<IServerQuestions>();
+	onGetInvite: Signal<{from:string,to:string}> = new Signal<{from:string,to:string}>();
+	declineInvite:Signal<{from:string,to:string}>=new Signal<{from: string, to: string}>()
 	private websocket: WebSocket;
 	private userConnectionName: string;
 	private app: App;
@@ -34,7 +36,6 @@ export class ClientSocketModel {
 		this.types = {
 			getUserList: (data) => this.onGetUserList.emit(data),
 			getOpenUsers: (data) => {
-				console.log('!!!',data)
 				const responseNames = data.map((e: IUser) => e && e.name != this.userConnectionName)
 				this.onGetOpenUsers.emit(responseNames)
 			},
@@ -45,6 +46,12 @@ export class ClientSocketModel {
 			chooseCategory: (data) => {
 				this.activePlayer = data.activePlayer
 				this.redrawCategories.emit(data.category)
+			},
+			declineInvite:(data)=>{
+				this.declineInvite.emit(data)
+			},
+			sendInvite:(data)=>{
+				this.onGetInvite.emit(data)
 			},
 			startGame: (data) => {
 				this.activePlayer = data.activePlayer
@@ -83,54 +90,6 @@ export class ClientSocketModel {
 			this.types[response.type](JSON.parse(response.content))
 			if (response.type === 'message') {
 			}
-			// if (response.type === 'getOpenUsers') {
-			//   const responseP = JSON.parse(response.content).filter((e: string) => e !== this.userConnectionName)
-			//   this.onGetOpenUsers.emit(responseP)
-			// }
-			// if (response.type === 'getUserList' && response.content) {
-			//    this.onGetUserList.emit(JSON.parse(response.content))
-			// }
-			// if (response.type === 'oneCategoryLeft') {
-			//   this.oneChoosedCategory.emit(response.content)
-			//   return
-			// }
-			// if (response.type === 'chooseCategory') {
-			//   const _response = JSON.parse(response.content)
-			//   this.activePlayer = _response.activePlayer
-			//   this.redrawCategories.emit(_response.category)
-			// }
-			// if (response.type === 'startGame') {
-			//   const responseObj: IStartGameData = JSON.parse(response.content)
-			//   this.players = responseObj.usersInGame
-			//   responseObj.playerName = this.userConnectionName
-			//   this.activePlayer = responseObj.activePlayer
-			//   this.onOnlineSettings.emit(responseObj);
-			//   this.roomId = responseObj.roomId;
-			//   this.onStartGame.emit(null)
-			//
-			// }
-			// if (response.type === 'playersFromServer') {
-			//   const _response = JSON.parse(response.content)
-			//   this.onPlayersFromServer.emit({
-			//     player: this.userConnectionName,
-			//     opponent: _response.players.filter((e: string) => e != this.userConnectionName)[0],
-			//     question: JSON.parse(_response.question)
-			//   })
-			// }
-			// if (response.type === 'onAnswer') {
-			//   const _response = JSON.parse(response.content)
-			//   const player = _response.players.filter((player: IPlayerAnswer) => player.name === this.userConnectionName)[0]
-			//   const opponent = _response.players.filter((player: IAnswerObj) => player.name !== this.userConnectionName)[0]
-			//  this.onBothAnswer.emit({player, opponent, question: _response.question, correct: _response.correct})
-			//
-			// }
-			// if (response.type === 'onGetNextQuestion') {
-			//   const _response = JSON.parse(response.content)
-			//   this.onGetServerNextQuestion.emit(JSON.parse(_response))
-			// }
-			// if (response.type === 'onFinishRound') {
-			//   console.log(JSON.parse(response.content))
-			// }
 		}
 		this.websocket.onerror = () => {
 
@@ -150,17 +109,9 @@ export class ClientSocketModel {
 		}
 	}
 
-	// startGame(data: IStartGame) {
-	//   this.sendRequest('startGame',data)
-	//   }
-
 	sendGameParams(params: IParams) {
 		this.sendRequest("sendGameParams", {...params, roomId: this.roomId, playerName: this.userConnectionName})
 	}
-
-	// getOpenUsers() {
-	//   this.sendRequest('getOpenUsers',{})
-	// }
 
 	onAnswer(author: string) {
 		this.sendRequest('onAnswer', {
@@ -177,7 +128,7 @@ export class ClientSocketModel {
 			activePlayer: this.activePlayer
 		}
 	}
-
+//todo delete room after game, clear players data, add them to open players
 	nextQuestionFromServer() {
 		this.sendRequest('onGetNextQuestion', {
 			roomId: this.roomId,
@@ -191,39 +142,7 @@ export class ClientSocketModel {
 		}
 		this.websocket.send(JSON.stringify(requestMessage))
 	}
-
+	onDeclineInvite(data: { players: { to: string; from: string } }) {
+		this.sendRequest('declineInvite',data)
+	}
 }
-
-// public getQuestion(){
-//      const requestMessage = {
-//          type: 'getQuestion',
-//          content: this.roomId
-//      }
-//      this.websocket.send(JSON.stringify(requestMessage))
-//  }
-
-// if (response.type === 'questionFromServer') {
-//   console.log("getModel")
-//   this.onGetQuestion.emit(JSON.parse(response.content))
-// }
-// if (response.type === 'questionParamsResponse') {
-//      const _response: IWorkItem[][] = JSON.parse(response.content)
-//      this.onGetServerQuestions.emit({
-//          questions: _response,
-//          players: {
-//              player: this.userConnectionName,
-//              opponent: this.players.filter(pl => pl !== this.userConnectionName)[0]
-//          }
-//      })
-//
-//  }
-// this.onGetServerQuestions.emit({
-//     questions: _response,
-//     players: {
-//         player: this.userConnectionName,
-//         opponent: this.players.filter(pl => pl !== this.userConnectionName)[0]
-//     }
-// })
-// if (response.type === 'getPlayersUser') {
-//     console.log('PLAYERS', response.content)
-// }

@@ -50,6 +50,8 @@ export default class Connections {
 	}
 
 	findConnection(user: string) {
+		console.log("USERRRRNAME",user)
+		this.connections.forEach(c=>console.log(c.name))
 		return this.connections.find(con => con.name === user)
 	}
 
